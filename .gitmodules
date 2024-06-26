@@ -1,0 +1,3 @@
+[submodule "src/AntDesign.Icons/ant-design-icons"]
+	path = src/AntDesign.Icons/ant-design-icons
+	url = https://github.com/ant-design/ant-design-icons.git
