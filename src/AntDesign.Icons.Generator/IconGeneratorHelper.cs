@@ -78,13 +78,20 @@ namespace AntDesign.Icons.Generator
         public static string GetIconClassTemplate(string iconName, string className, string content)
         {
             var template = IconTemplate;
+          
             if (className.EndsWith("Twotone"))
             {
                 var (primaryColor, secondaryColor) = GetTwotoneFields(content);
-                var fields = $"""
-                        private static string DefaultPrimaryColor = "{primaryColor}";
-                        private static string DefaultSecondaryColor = "{secondaryColor}";
-                    """;
+
+                var fields = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(primaryColor))
+                {
+                    fields.AppendLine($"{Indent(1)}private static string DefaultPrimaryColor = \"{primaryColor}\";");
+                }
+                if (!string.IsNullOrWhiteSpace(secondaryColor))
+                {
+                    fields.AppendLine($"{Indent(1)}private static string DefaultSecondaryColor = \"{secondaryColor}\";");
+                }
 
                 content = content.Replace($"fill=\"{primaryColor}\"", "fill=\"primaryColor\"")
                     .Replace($"fill=\"{secondaryColor}\"", "fill=\"secondaryColor\"");
@@ -105,7 +112,7 @@ namespace AntDesign.Icons.Generator
 
                 template = template
                     .Replace("/*twotoneParam*/", ", string[] twoToneColor = null")
-                    .Replace("/*towtoneFields*/", fields)
+                    .Replace("/*towtoneFields*/", fields.ToString())
                     .Replace("/*twotoneArgs*/", ", TwoToneColor")
                     .Replace("/*towtoneParameter*/", "[Parameter] public string[] TwoToneColor { get; set; }")
                     .Replace("/*twotoneMethodTemplate*/", TwoToneMethodTemplate(primaryColor,secondaryColor))
