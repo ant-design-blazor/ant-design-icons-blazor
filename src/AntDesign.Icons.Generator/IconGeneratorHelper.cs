@@ -52,7 +52,9 @@ namespace AntDesign.Icons.Generator
             }
             """;
 
-        private static string TwoToneMethodTemplate = """
+        private static string TwoToneMethodTemplate(string primaryColor, string secondaryColor)
+        {
+            return $$$"""
                 private static string GetTwoToneIconSvg(string path, string[] twoToneColor)
                 {
                     if (twoToneColor is { Length: 1 } || string.IsNullOrWhiteSpace(twoToneColor[1]))
@@ -66,11 +68,12 @@ namespace AntDesign.Icons.Generator
                     }
                     else
                     {
-                        return path.Replace($"fill=\"primaryColor\"", $"fill=\"{DefaultPrimaryColor}\"")
-                            .Replace($"fill=\"secondaryColor\"", $"fill=\"{DefaultSecondaryColor}\"");
+                        return path.Replace($"fill=\"primaryColor\"", {{{( string.IsNullOrWhiteSpace(primaryColor)? "\"\"": "$\"fill=\\\"{DefaultPrimaryColor}\\\"\"") }}} )
+                            .Replace($"fill=\"secondaryColor\"", {{{(string.IsNullOrWhiteSpace(secondaryColor) ? "\"\"" : "$\"fill=\\\"{DefaultSecondaryColor}\\\"\"")}}} );
                     }
                 }
             """;
+        }
 
         public static string GetIconClassTemplate(string iconName, string className, string content)
         {
@@ -90,11 +93,11 @@ namespace AntDesign.Icons.Generator
 
                 foreach (var path in document.Root.Nodes().OfType<XElement>())
                 {
-                    if (path.Attribute("fill")?.Value == "secondaryColor" && !string.IsNullOrWhiteSpace(secondaryColor))
+                    if (path.Attribute("fill")?.Value == "secondaryColor")
                     {
                         path.SetAttributeValue("fill", "secondaryColor");
                     }
-                    else if (!string.IsNullOrWhiteSpace(primaryColor))
+                    else
                     {
                         path.SetAttributeValue("fill", "primaryColor");
                     }
@@ -105,7 +108,7 @@ namespace AntDesign.Icons.Generator
                     .Replace("/*towtoneFields*/", fields)
                     .Replace("/*twotoneArgs*/", ", TwoToneColor")
                     .Replace("/*towtoneParameter*/", "[Parameter] public string[] TwoToneColor { get; set; }")
-                    .Replace("/*twotoneMethodTemplate*/", TwoToneMethodTemplate)
+                    .Replace("/*twotoneMethodTemplate*/", TwoToneMethodTemplate(primaryColor,secondaryColor))
                     .Replace("/*towtoneHandler*/", "Path = GetTwoToneIconSvg(Path, twoToneColor);");
 
                 content = document.ToString();
@@ -119,10 +122,9 @@ namespace AntDesign.Icons.Generator
             var svgPaths = xml.DocumentElement.InnerXml;
 
             template = template.Replace("{{iconName}}", iconName)
-            .Replace("{{className}}", className)
-            .Replace("{{svgPaths}}", $"\"\"\"{svgPaths}\"\"\"")
-            .Replace("{{attributes}}", GetAttributesString(attributes));
-
+                .Replace("{{className}}", className)
+                .Replace("{{svgPaths}}", $"\"\"\"{svgPaths}\"\"\"")
+                .Replace("{{attributes}}", GetAttributesString(attributes));
 
             return template;
         }
@@ -151,11 +153,6 @@ namespace AntDesign.Icons.Generator
             };
 
             return (primaryColor, secondaryColor);
-
-            //return $"""
-            //    {Indent(1)}private static string DefaultPrimaryColor = "{primaryColor}";
-            //    {Indent(1)}private static string DefaultSecondaryColor = "{secondaryColor}";
-            //    """;
         }
 
         private static string Indent(int level)
