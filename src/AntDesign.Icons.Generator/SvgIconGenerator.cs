@@ -1,5 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace AntDesign.Icons.Generator
 {
@@ -13,16 +18,13 @@ namespace AntDesign.Icons.Generator
             var valueProvider = textProvider.Select((text, token) =>
             {
                 var fileName = Path.GetFileNameWithoutExtension(text.Path);
-                var iconName = string.Join("", fileName.Split('-').Select(static str => str[0].ToString().ToUpper() + str.Substring(1)));
-
                 var dirName = Path.GetFileName(Path.GetDirectoryName(text.Path));
-                var theme = dirName[0].ToString().ToUpper() + dirName.Substring(1);
-
+               
                 return new SvgFileInfo(
-                    iconName,
+                    fileName,
                     text.GetText(token)!.ToString(),
                     text.Path,
-                    theme
+                    dirName
                 );
             }).Collect();
 
@@ -40,23 +42,17 @@ namespace AntDesign.Icons.Generator
 
         private void GerateIconKind(string packageName, IEnumerable<SvgFileInfo> svgFileInfos, SourceProductionContext context)
         {
-            //context.AddSource()
+            foreach (var fileInfo in svgFileInfos)
+            {
+                var iconName = string.Join("", fileInfo.Name.Split('-').Select(static str => str[0].ToString().ToUpper() + str.Substring(1)));
+                var iconTheme = fileInfo.DirName[0].ToString().ToUpper() + fileInfo.DirName.Substring(1);
+                var className = iconName + iconTheme;
+   
+                var iconCode = IconGeneratorHelper.GetIconClassTemplate(fileInfo.Name, className, fileInfo.Content);
+                context.AddSource($"{fileInfo.DirName}/{className}.g.cs", SourceText.From(iconCode, Encoding.UTF8));
+            }
         }
-    }
 
-    internal class SvgFileInfo
-    {
-        public string Name { get; }
-        public string Content { get; }
-        public string Path { get; }
-        public string Theme { get; }
 
-        public SvgFileInfo(string name, string content, string path, string theme)
-        {
-            Name = name;
-            Content = content;
-            Path = path;
-            Theme = theme;
-        }
     }
 }
