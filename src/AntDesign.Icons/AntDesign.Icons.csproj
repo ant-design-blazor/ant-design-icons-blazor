@@ -10,7 +10,29 @@
 		<IsAotCompatible>true</IsAotCompatible>
 		<OutputType>Library</OutputType>
 		<IsPackable>true</IsPackable>
+		<Description>🌈 The Ant Design Icons Library for Blazor.</Description>
+		<PackageProjectUrl>https://github.com/ant-design-blazor/ant-design-icons-blazor</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/ant-design-blazor/ant-design-icons-blazor</RepositoryUrl>
+		<PackageTags>blazor,ant-design,icons,antd,design,razor,components</PackageTags>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>.NET Foundation and Contributors</Copyright>
+		<Authors>James Yeung</Authors>
+		<PackageIcon>logo.png</PackageIcon>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
+	
+	<ItemGroup>
+		<!-- The nuget package icon -->
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+		<None Include="logo.png" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Remove="ant-design-icons\**" />
