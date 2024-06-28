@@ -78,8 +78,8 @@ namespace AntDesign.Icons.Generator
         public static string GetIconClassTemplate(string iconName, string className, string content)
         {
             var template = IconTemplate;
-          
-            if (className.EndsWith("Twotone"))
+            var towtone = className.EndsWith("Twotone");
+            if (towtone)
             {
                 var (primaryColor, secondaryColor) = GetTwotoneFields(content);
 
@@ -126,6 +126,13 @@ namespace AntDesign.Icons.Generator
             xml.LoadXml(content);
 
             var attributes = xml.DocumentElement.Attributes.Cast<XmlAttribute>().ToDictionary(static attr => attr.Name, static attr => attr.Value);
+            attributes["width"]= "1em";
+            attributes["height"] = "1em";
+            if (!towtone)
+            {
+                attributes["fill"] = "currentColor";
+            }
+
             var svgPaths = xml.DocumentElement.InnerXml;
 
             template = template.Replace("{{iconName}}", iconName)
