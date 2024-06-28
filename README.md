@@ -4,10 +4,22 @@
 
 Generate Icon components from official ant-design-icons repo with Source Generators.
 
+You can add all icons from https://ant.design/components/icon
+
 ## Usage
 
-```razor
-@AlertTwotone.RenderIcon(twoToneColor:["#52c41a", "#398439"])
+- Install package
+  ```bash
+  $ dotnet add package AntDesign
+  ```
 
-<TagTwotone TwoToneColor="@(["red","yellow"])" />
-```
+- Add `@using AntDesign.Icons` to your `_Imports.razor` file
+
+- Use `@AlertTwotone.RenderIcon()` or `<AlertTwotone />` to render an icon.
+
+
+    ```razor
+    @AlertTwotone.RenderIcon(twoToneColor:["#52c41a", "#398439"])
+
+    <TagTwotone TwoToneColor="@(["red","yellow"])" />
+    ```
