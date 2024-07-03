@@ -1,4 +1,8 @@
-# AntDesign Icons for Blazor
+<h1 align="center">AntDesign Icons for Blazor</h1>
+
+<div align="center">
+  <img src="./docs/assets/screenshot.png" />
+</div>
 
 ## How it works?
 
@@ -10,16 +14,36 @@ You can add all icons from https://ant.design/components/icon
 
 - Install package
   ```bash
-  $ dotnet add package AntDesign
+  $ dotnet add package AntDesign.Icons
   ```
 
 - Add `@using AntDesign.Icons` to your `_Imports.razor` file
 
-- Use `@AlertTwotone.RenderIcon()` or `<AlertTwotone />` to render an icon.
+- We offer two ways to use it.  
 
+  1. One is the component approach, which can be placed anywhere in the razor template. 
 
     ```razor
-    @AlertTwotone.RenderIcon(twoToneColor:["#52c41a", "#398439"])
-
     <TagTwotone TwoToneColor="@(["red","yellow"])" />
     ```
+
+  2. The other is the static method approach, which returns RenderFargment that can be used as an attribute value or as a variable.
+  
+    ```razor
+    @AlertTwotone.RenderIcon(twoToneColor:["#52c41a", "#398439"])
+    ```
+
+  They have the same parameters and achieve the same functionality.
+
+
+### Parameters
+
+## API
+
+| Property | Description | Type | Default Value |
+| --- | --- | --- | --- |
+| Class | class Name of Icon |string         | -         |
+| Style   | Style properties of icon, like fontSize and color| string       |
+| Spin | Rotate icon with animation | boolean         |-       |
+| Rotate |Rotate by n degrees | int  | -  |
+| TwoToneColor |Only supports the two-tone icon. Specify the primary color.| string[]  | -  |
