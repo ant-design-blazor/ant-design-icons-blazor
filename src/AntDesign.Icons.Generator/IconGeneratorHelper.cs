@@ -115,7 +115,7 @@ namespace AntDesign.Icons.Generator
                     .Replace("/*towtoneFields*/", fields.ToString())
                     .Replace("/*twotoneArgs*/", ", TwoToneColor")
                     .Replace("/*towtoneParameter*/", "[Parameter] public string[] TwoToneColor { get; set; }")
-                    .Replace("/*twotoneMethodTemplate*/", TwoToneMethodTemplate(primaryColor,secondaryColor))
+                    .Replace("/*twotoneMethodTemplate*/", TwoToneMethodTemplate(primaryColor, secondaryColor))
                     .Replace("/*towtoneHandler*/", "Path = GetTwoToneIconSvg(Path, twoToneColor);");
 
                 content = document.ToString();
@@ -126,8 +126,11 @@ namespace AntDesign.Icons.Generator
             xml.LoadXml(content);
 
             var attributes = xml.DocumentElement.Attributes.Cast<XmlAttribute>().ToDictionary(static attr => attr.Name, static attr => attr.Value);
-            attributes["width"]= "1em";
+            attributes["width"] = "1em";
             attributes["height"] = "1em";
+            attributes["data-icon"] = iconName;
+            attributes["aria-hidden"] = "true";
+            attributes["focusable"] = "false";
             if (!towtone)
             {
                 attributes["fill"] = "currentColor";
@@ -146,7 +149,7 @@ namespace AntDesign.Icons.Generator
         private static string GetAttributesString(Dictionary<string, string> attributes)
         {
             var sb = new StringBuilder();
-            var index = 5;
+            var index = 4;
             foreach (var attr in attributes)
             {
                 sb.AppendLine($"{Indent(3)}builder.AddAttribute({index++}, \"{attr.Key}\", \"{attr.Value}\");");
