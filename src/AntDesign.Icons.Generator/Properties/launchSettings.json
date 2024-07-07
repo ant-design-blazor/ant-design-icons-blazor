@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "配置文件 1": {
+    "Run Source Generators": {
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\AntDesign.Icons\\AntDesign.Icons.csproj"
     }

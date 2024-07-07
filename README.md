@@ -47,3 +47,10 @@ You can add all icons from https://ant.design/components/icon
 | Spin | Rotate icon with animation | boolean         |-       |
 | Rotate |Rotate by n degrees | int  | -  |
 | TwoToneColor |Only supports the two-tone icon. Specify the primary color.| string[]  | -  |
+
+
+## Development
+
+- Install the .NET Compiler Platform SDK with VS2022 for debug the Source Generators.
+- Set `AntDesign.Icons.Generator` as startup project.
+- Press F5 or click `Debug` button on top of VS2022.
