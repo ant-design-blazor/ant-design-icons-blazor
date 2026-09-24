@@ -42,7 +42,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<AdditionalFiles Include="ant-design-icons-v6\**\*.svg" />
+		<AdditionalFiles Include="ant-design-icons\packages\icons-svg\svg\**\*.svg" />
 	</ItemGroup>
 	
 	<ItemGroup Condition="$(TargetFramework) == 'netstandard2.1'">
