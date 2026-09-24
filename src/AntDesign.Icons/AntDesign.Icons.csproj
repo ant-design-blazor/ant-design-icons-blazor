@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.1;net5;net6;net7;net8</TargetFrameworks>
+		<TargetFrameworks>netstandard2.1;net5;net6;net7;net8;net10.0;net11.0</TargetFrameworks>
 		<LangVersion>Latest</LangVersion>
 		<RazorLangVersion>3.0</RazorLangVersion>
 		<Nullable>enable</Nullable>
@@ -42,7 +42,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<AdditionalFiles Include="ant-design-icons\packages\icons-svg\svg\**\*.*" />
+		<AdditionalFiles Include="ant-design-icons\packages\icons-svg\svg\**\*.svg" />
 	</ItemGroup>
 	
 	<ItemGroup Condition="$(TargetFramework) == 'netstandard2.1'">
@@ -64,10 +64,16 @@
 	<ItemGroup Condition="$(TargetFramework) == 'net8'">
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
 	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework) == 'net10.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework) == 'net11.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="11.0.0-rc.1.26425.128" />
+	</ItemGroup>
 	
 	<ItemGroup>
 		<ProjectReference Include="..\AntDesign.Icons.Generator\AntDesign.Icons.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 </Project>
-
-

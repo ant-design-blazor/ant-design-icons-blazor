@@ -1,8 +1,5 @@
 name: Release
 
-env:
-  NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
-
 on:
   push:
     tags:
@@ -14,42 +11,29 @@ jobs:
     if: github.repository_owner == 'ant-design-blazor'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           submodules: 'true'
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+      - name: Setup .NET SDKs
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 3.1.300
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 5.0.100
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 6.0.101
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 7.0.100
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 8.0.300
-
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          include-prerelease: true
 
       - name: Package and publish to Nuget📦
         run: |
-          VERSION=`git describe --tags`
+          VERSION="${GITHUB_REF_NAME#v}"
           echo "Publishing Version: ${VERSION}"
-          npm install
-          dotnet build
-          rm -rf ./node_modules
-          dotnet pack src/AntDesign.Icons/AntDesign.Icons.csproj /p:PackageVersion=$VERSION -c Release -o publish
-          dotnet nuget push publish/*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
+          dotnet restore AntDesign.Icons.sln
+          dotnet build AntDesign.Icons.sln --configuration Release --no-restore
+          dotnet pack src/AntDesign.Icons/AntDesign.Icons.csproj \
+            --configuration Release --no-build --output publish \
+            -p:PackageVersion="$VERSION"
+          dotnet nuget push publish/*.nupkg --source https://api.nuget.org/v3/index.json \
+            --api-key "$NUGET_API_KEY" --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
