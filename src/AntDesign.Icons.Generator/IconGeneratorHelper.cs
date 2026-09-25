@@ -126,6 +126,9 @@ namespace AntDesign.Icons.Generator
             xml.LoadXml(content);
 
             var attributes = xml.DocumentElement.Attributes.Cast<XmlAttribute>().ToDictionary(static attr => attr.Name, static attr => attr.Value);
+            // React icons keep the source SVG's viewBox and other geometry attributes,
+            // but do not forward its root class (commonly `icon`) to the rendered SVG.
+            attributes.Remove("class");
             attributes["width"] = "1em";
             attributes["height"] = "1em";
             attributes["data-icon"] = iconName;
