@@ -10,33 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           submodules: 'true'
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+      - name: Setup .NET SDKs
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 5.0.100
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 6.0.101
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 7.0.100
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 8.0.300
-
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          include-prerelease: true
 
       - name: Check Building ⚙
         run: |
-          npm i
-          dotnet build
+          dotnet restore AntDesign.Icons.sln
+          dotnet build AntDesign.Icons.sln --configuration Release --no-restore
