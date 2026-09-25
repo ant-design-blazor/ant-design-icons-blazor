@@ -10,6 +10,16 @@ namespace AntDesign.Icons.Generator
 {
     public class IconGeneratorHelper
     {
+        // Mirrors @ant-design/icons-svg 4.6.0's adjustViewBox transform.
+        // React retains the original canvas only for these legacy icon names.
+        private static readonly HashSet<string> LegacyV6ViewBoxNames = new(StringComparer.Ordinal)
+        {
+            "step-backward", "step-forward", "fast-backward", "fast-forward", "forward", "backward",
+            "caret-up", "caret-down", "caret-left", "caret-right", "retweet", "swap-left", "swap-right",
+            "loading", "loading-3-quarters", "coffee", "bars", "file-jpg", "inbox", "shopping-cart",
+            "safety", "medium-workmark"
+        };
+
         public static string IconTemplate = """
             using Microsoft.AspNetCore.Components;
             using Microsoft.AspNetCore.Components.Rendering;
@@ -126,6 +136,10 @@ namespace AntDesign.Icons.Generator
             xml.LoadXml(content);
 
             var attributes = xml.DocumentElement.Attributes.Cast<XmlAttribute>().ToDictionary(static attr => attr.Name, static attr => attr.Value);
+            attributes["viewBox"] = LegacyV6ViewBoxNames.Contains(iconName)
+                ? "0 0 1024 1024"
+                : "64 64 896 896";
+
             attributes["width"] = "1em";
             attributes["height"] = "1em";
             attributes["data-icon"] = iconName;
