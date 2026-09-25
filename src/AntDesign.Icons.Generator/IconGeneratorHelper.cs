@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -75,7 +76,7 @@ namespace AntDesign.Icons.Generator
             """;
         }
 
-        public static string GetIconClassTemplate(string iconName, string className, string content)
+        public static string GetIconClassTemplate(string iconName, string className, string content, ISet<string>? oldIconNames = null)
         {
             var template = IconTemplate;
             var towtone = className.EndsWith("Twotone");
@@ -129,6 +130,7 @@ namespace AntDesign.Icons.Generator
             // React icons keep the source SVG's viewBox and other geometry attributes,
             // but do not forward its root class (commonly `icon`) to the rendered SVG.
             attributes.Remove("class");
+            attributes["viewBox"] = oldIconNames?.Contains(iconName) == true ? "0 0 1024 1024" : "64 64 896 896";
             attributes["width"] = "1em";
             attributes["height"] = "1em";
             attributes["data-icon"] = iconName;
@@ -147,6 +149,23 @@ namespace AntDesign.Icons.Generator
                 .Replace("{{attributes}}", GetAttributesString(attributes));
 
             return template;
+        }
+
+        public static HashSet<string> ParseOldIconNames(string source)
+        {
+            var match = Regex.Match(source, @"OLD_ICON_NAMES\s*=\s*\[(?<names>[\s\S]*?)\]", RegexOptions.CultureInvariant);
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            if (!match.Success)
+            {
+                return names;
+            }
+
+            foreach (Match name in Regex.Matches(match.Groups["names"].Value, "['\"](?<name>[^'\"]+)['\"]", RegexOptions.CultureInvariant))
+            {
+                names.Add(name.Groups["name"].Value);
+            }
+
+            return names;
         }
 
         private static string GetAttributesString(Dictionary<string, string> attributes)
