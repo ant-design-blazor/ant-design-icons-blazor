@@ -10,6 +10,20 @@ namespace AntDesign.Icons.Generator
 {
     public class IconGeneratorHelper
     {
+        // These icons keep their 1024-unit canvas in @ant-design/icons-svg 4.6.0.
+        // All other standard Ant Design icons use the v6 64..960 canvas.
+        private static readonly HashSet<string> LegacyV6ViewBoxIcons = new(StringComparer.Ordinal)
+        {
+            "BackwardFilled", "BackwardOutlined", "BarsOutlined", "CaretDownFilled",
+            "CaretDownOutlined", "CaretLeftFilled", "CaretLeftOutlined", "CaretRightFilled",
+            "CaretRightOutlined", "CaretUpFilled", "CaretUpOutlined", "CoffeeOutlined",
+            "FastBackwardFilled", "FastBackwardOutlined", "FastForwardFilled", "FastForwardOutlined",
+            "FileJpgOutlined", "ForwardFilled", "ForwardOutlined", "InboxOutlined",
+            "Loading3QuartersOutlined", "LoadingOutlined", "MediumWorkmarkOutlined", "RetweetOutlined",
+            "SafetyOutlined", "ShoppingCartOutlined", "StepBackwardFilled", "StepBackwardOutlined",
+            "StepForwardFilled", "StepForwardOutlined", "SwapLeftOutlined", "SwapRightOutlined"
+        };
+
         public static string IconTemplate = """
             using Microsoft.AspNetCore.Components;
             using Microsoft.AspNetCore.Components.Rendering;
@@ -126,6 +140,13 @@ namespace AntDesign.Icons.Generator
             xml.LoadXml(content);
 
             var attributes = xml.DocumentElement.Attributes.Cast<XmlAttribute>().ToDictionary(static attr => attr.Name, static attr => attr.Value);
+            if (!LegacyV6ViewBoxIcons.Contains(className)
+                && attributes.TryGetValue("viewBox", out var viewBox)
+                && viewBox is "0 0 1024 1024" or "0 0 1042 1042")
+            {
+                attributes["viewBox"] = "64 64 896 896";
+            }
+
             attributes["width"] = "1em";
             attributes["height"] = "1em";
             attributes["data-icon"] = iconName;
