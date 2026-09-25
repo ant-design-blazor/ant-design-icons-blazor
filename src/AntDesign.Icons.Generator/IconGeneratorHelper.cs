@@ -75,7 +75,7 @@ namespace AntDesign.Icons.Generator
             """;
         }
 
-        public static string GetIconClassTemplate(string iconName, string className, string content)
+        public static string GetIconClassTemplate(string iconName, string className, string content, HashSet<string> legacyViewBoxNames)
         {
             var template = IconTemplate;
             var towtone = className.EndsWith("Twotone");
@@ -126,6 +126,10 @@ namespace AntDesign.Icons.Generator
             xml.LoadXml(content);
 
             var attributes = xml.DocumentElement.Attributes.Cast<XmlAttribute>().ToDictionary(static attr => attr.Name, static attr => attr.Value);
+            attributes["viewBox"] = legacyViewBoxNames.Contains(iconName)
+                ? "0 0 1024 1024"
+                : "64 64 896 896";
+
             attributes["width"] = "1em";
             attributes["height"] = "1em";
             attributes["data-icon"] = iconName;
