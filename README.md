@@ -54,4 +54,4 @@ You can add all icons from https://ant.design/components/icon
 - Install the .NET Compiler Platform SDK with VS2022 for debug the Source Generators.
 - Set `AntDesign.Icons.Generator` as startup project.
 - Press F5 or click `Debug` button on top of VS2022.
-- Icon category data in `eng/icon-categories.tsv` is synchronized by the Ant Design Blazor documentation repository's `sync-v6` CLI from [Ant Design's IconSearch fields](https://github.com/ant-design/ant-design/blob/master/.dumi/theme/builtins/IconSearch/fields.ts). The generated catalog takes the SVG inventory from the `ant-design-icons` submodule and places newly added but not-yet-categorized icons in `other`.
+- The generated icon catalog contains the SVG inventory, theme, and component type. Icon categories are documentation data and are synchronized by the Ant Design Blazor docs `sync-v6` CLI from [Ant Design's IconSearch fields](https://github.com/ant-design/ant-design/blob/master/.dumi/theme/builtins/IconSearch/fields.ts).

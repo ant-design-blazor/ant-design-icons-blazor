@@ -42,14 +42,9 @@ namespace AntDesign.Icons.Generator
                 .Select((text, token) => text.GetText(token)!.ToString())
                 .Collect();
 
-            var categorySourceProvider = context.AdditionalTextsProvider
-                .Where(static file => file.Path.EndsWith("icon-categories.tsv", StringComparison.OrdinalIgnoreCase))
-                .Select((text, token) => text.GetText(token)!.ToString())
-                .Collect();
-
             var assemblies = context.CompilationProvider.Select((compilation, token) => compilation.Assembly);
 
-            var mergeInfo = assemblies.Combine(valueProvider.Combine(oldIconNamesProvider).Combine(categorySourceProvider));
+            var mergeInfo = assemblies.Combine(valueProvider.Combine(oldIconNamesProvider));
 
             context.RegisterSourceOutput(mergeInfo, (ctx, mergeInfo) =>
             {
@@ -70,9 +65,8 @@ namespace AntDesign.Icons.Generator
                     return;
                 }
 
-                var categories = ParseCategories(mergeInfo.Right.Right.FirstOrDefault() ?? string.Empty);
                 GerateIconKind(packageName, fileInfos, oldIconNames, ctx);
-                GenerateCatalog(fileInfos, categories, ctx);
+                GenerateCatalog(fileInfos, ctx);
             });
         }
 
@@ -89,26 +83,12 @@ namespace AntDesign.Icons.Generator
             }
         }
 
-        private static void GenerateCatalog(IEnumerable<SvgFileInfo> svgFileInfos, IconCategoryMap categories, SourceProductionContext context)
+        private static void GenerateCatalog(IEnumerable<SvgFileInfo> svgFileInfos, SourceProductionContext context)
         {
-            var applicationIconOrder = svgFileInfos
-                .GroupBy(file => file.Name, StringComparer.Ordinal)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group.Select(file => ToClassName(file.Name) + ToThemeClassName(file.DirName))
-                        .OrderBy(className => className, StringComparer.Ordinal)
-                        .First(),
-                    StringComparer.Ordinal);
             var entries = svgFileInfos
                 .Select(file => (file.Name, Theme: file.DirName, ClassName: ToClassName(file.Name) + ToThemeClassName(file.DirName)))
-                .OrderBy(file => categories.GetCategoryOrder(file.Name))
-                .ThenBy(file => categories.GetNameOrder(file.Name))
-                // The React application-icon inventory follows the first generated
-                // component export name for each base icon (e.g. AppstoreAdd precedes
-                // Appstore), then presents that icon's variants in theme order.
-                .ThenBy(file => categories.GetNameOrder(file.Name) == int.MaxValue ? applicationIconOrder[file.Name] : string.Empty, StringComparer.Ordinal)
+                .OrderBy(file => file.Name, StringComparer.Ordinal)
                 .ThenBy(file => GetThemeOrder(file.Theme))
-                .ThenBy(file => file.Name, StringComparer.Ordinal)
                 .ToArray();
 
             var source = new StringBuilder("""
@@ -121,34 +101,27 @@ namespace AntDesign.Icons.Generator
 
                 public sealed class IconCatalogItem
                 {
-                    public IconCatalogItem(string name, string theme, string category, Type componentType)
+                    public IconCatalogItem(string name, string theme, Type componentType)
                     {
                         Name = name;
                         Theme = theme;
-                        Category = category;
                         ComponentType = componentType;
                     }
 
                     public string Name { get; }
                     public string Theme { get; }
-                    public string Category { get; }
                     public Type ComponentType { get; }
                 }
 
                 public static class IconCatalog
                 {
                 """);
-            source.Append("                    public static IReadOnlyList<string> Categories { get; } = Array.AsReadOnly(new[] { ");
-            source.Append(string.Join(", ", categories.CategoryOrder.Append("other").Select(category => "\"" + category + "\"")));
-            source.AppendLine(" });");
-            source.AppendLine();
             source.AppendLine("                    public static IReadOnlyList<IconCatalogItem> Items { get; } = Array.AsReadOnly(new IconCatalogItem[]");
             source.AppendLine("                    {");
             foreach (var entry in entries)
             {
-                var category = categories.GetCategory(entry.Name);
                 source.Append("        new(\"").Append(entry.Name).Append("\", \"").Append(entry.Theme)
-                    .Append("\", \"").Append(category).Append("\", typeof(").Append(entry.ClassName).AppendLine(")),");
+                    .Append("\", typeof(").Append(entry.ClassName).AppendLine(")),");
             }
             source.AppendLine("""
                     });
@@ -171,63 +144,6 @@ namespace AntDesign.Icons.Generator
 
         private static int GetThemeOrder(string theme)
             => Array.IndexOf(ThemeOrder, theme);
-
-        private static IconCategoryMap ParseCategories(string source)
-        {
-            var categories = new List<string>();
-            var namesByCategory = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-            foreach (var line in source.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (line.StartsWith("#", StringComparison.Ordinal)) continue;
-                var fields = line.Split('\t');
-                if (fields.Length != 2 || string.IsNullOrWhiteSpace(fields[0]) || string.IsNullOrWhiteSpace(fields[1])) continue;
-                if (!namesByCategory.TryGetValue(fields[0], out var names))
-                {
-                    names = new List<string>();
-                    namesByCategory.Add(fields[0], names);
-                    categories.Add(fields[0]);
-                }
-                names.Add(fields[1]);
-            }
-
-            return new IconCategoryMap(categories, namesByCategory);
-        }
-
-        private sealed class IconCategoryMap
-        {
-            private readonly Dictionary<string, string> categoryByName;
-            private readonly Dictionary<string, int> nameOrder;
-
-            public IconCategoryMap(IReadOnlyList<string> categoryOrder, Dictionary<string, List<string>> namesByCategory)
-            {
-                CategoryOrder = categoryOrder;
-                categoryByName = namesByCategory
-                    .SelectMany(category => category.Value.Select(name => (name, category.Key)))
-                    .ToDictionary(item => item.name, item => item.Key, StringComparer.Ordinal);
-                nameOrder = namesByCategory
-                    .SelectMany(category => category.Value.Select((name, index) => (name, index)))
-                    .ToDictionary(item => item.name, item => item.index, StringComparer.Ordinal);
-            }
-
-            public IReadOnlyList<string> CategoryOrder { get; }
-
-            public string GetCategory(string svgName)
-                => categoryByName.TryGetValue(ToClassName(svgName), out var category) ? category : "other";
-
-            public int GetCategoryOrder(string svgName)
-            {
-                var category = GetCategory(svgName);
-                for (var index = 0; index < CategoryOrder.Count; index++)
-                {
-                    if (string.Equals(CategoryOrder[index], category, StringComparison.Ordinal)) return index;
-                }
-                return CategoryOrder.Count;
-            }
-
-            public int GetNameOrder(string svgName)
-                => nameOrder.TryGetValue(ToClassName(svgName), out var index) ? index : int.MaxValue;
-        }
-
 
     }
 }

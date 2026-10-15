@@ -44,7 +44,6 @@
 	<ItemGroup>
 		<AdditionalFiles Include="ant-design-icons\packages\icons-svg\svg\**\*.svg" />
 		<AdditionalFiles Include="ant-design-icons\packages\icons-svg\plugins\svg2Definition\transforms\presets\adjustViewBox.ts" />
-		<AdditionalFiles Include="..\..\eng\icon-categories.tsv" />
 	</ItemGroup>
 	
 	<ItemGroup Condition="$(TargetFramework) == 'netstandard2.1'">
