@@ -11,7 +11,8 @@ export function beforeStart(options, extensions) {
 
 const iconStyles = `
 .anticon {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   color: inherit;
   font-style: normal;
   line-height: 0;
@@ -29,6 +30,7 @@ const iconStyles = `
 
 .anticon svg {
   display: inline-block;
+  vertical-align: inherit;
 }
 
 .anticon::before {

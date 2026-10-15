@@ -13,11 +13,11 @@ namespace AntDesign.Icons.Generator
     {
         private static readonly Dictionary<string, string> IconCategories = new(StringComparer.Ordinal)
         {
-            ["step-backward|step-forward|fast-backward|fast-forward|shrink|arrows-alt|down|up|left|right|caret-up|caret-down|caret-left|caret-right|up-circle|down-circle|left-circle|right-circle|double-right|double-left|vertical-left|vertical-right|vertical-align-top|vertical-align-middle|vertical-align-bottom|forward|backward|rollback|enter|retweet|swap|swap-left|swap-right|arrow-up|arrow-down|arrow-left|arrow-right|play-circle|up-square|down-square|left-square|right-square|login|logout|menu-fold|menu-unfold|border-bottom|border-horizontal|border-inner|border-outer|border-left|border-right|border-top|border-verticle|pic-center|pic-left|pic-right|radius-bottomleft|radius-bottomright|radius-upleft|radius-upright|fullscreen|fullscreen-exit"] = "direction",
-            ["question|question-circle|plus|plus-circle|pause|pause-circle|minus|minus-circle|plus-square|minus-square|info|info-circle|exclamation|exclamation-circle|close|close-circle|close-square|check|check-circle|check-square|clock-circle|warning|issues-close|stop"] = "suggestion",
-            ["edit|form|copy|scissor|delete|snippets|diff|highlight|align-center|align-left|align-right|bg-colors|bold|italic|underline|strikethrough|redo|undo|zoom-in|zoom-out|font-colors|font-size|line-height|colum-height|colum-width|dash|small-dash|sort-ascending|sort-descending|drag|ordered-list|unordered-list|radius-setting|column-width"] = "editor",
-            ["area-chart|pie-chart|bar-chart|dot-chart|line-chart|radar-chart|heat-map|fall|rise|stock|box-plot|fund|sliders"] = "data",
-            ["android|apple|windows|ie|chrome|github|aliwangwang|dingding|weibo-square|weibo-circle|taobao-circle|html5|weibo|twitter|wechat|youtube|alipay-circle|taobao|skype|qq|medium-workmark|gitlab|medium|linkedin|google-plus|dropbox|facebook|codepen|code-sandbox|code-sandbox-circle|amazon|google|codepen-circle|alipay|ant-design|ant-cloud|aliyun|zhihu|slack|slack-square|behance|behance-square|dribbble|dribbble-square|instagram|yuque|alibaba|yahoo|reddit|sketch"] = "logo"
+            ["StepBackward|StepForward|FastBackward|FastForward|Shrink|ArrowsAlt|Down|Up|Left|Right|CaretUp|CaretDown|CaretLeft|CaretRight|UpCircle|DownCircle|LeftCircle|RightCircle|DoubleRight|DoubleLeft|VerticalLeft|VerticalRight|VerticalAlignTop|VerticalAlignMiddle|VerticalAlignBottom|Forward|Backward|Rollback|Enter|Retweet|Swap|SwapLeft|SwapRight|ArrowUp|ArrowDown|ArrowLeft|ArrowRight|PlayCircle|UpSquare|DownSquare|LeftSquare|RightSquare|Login|Logout|MenuFold|MenuUnfold|BorderBottom|BorderHorizontal|BorderInner|BorderOuter|BorderLeft|BorderRight|BorderTop|BorderVerticle|PicCenter|PicLeft|PicRight|RadiusBottomleft|RadiusBottomright|RadiusUpleft|RadiusUpright|Fullscreen|FullscreenExit"] = "direction",
+            ["Question|QuestionCircle|Plus|PlusCircle|Pause|PauseCircle|Minus|MinusCircle|PlusSquare|MinusSquare|Info|InfoCircle|Exclamation|ExclamationCircle|Close|CloseCircle|CloseSquare|Check|CheckCircle|CheckSquare|ClockCircle|Warning|IssuesClose|Stop"] = "suggestion",
+            ["Edit|Form|Copy|Scissor|Delete|Snippets|Diff|Highlight|AlignCenter|AlignLeft|AlignRight|BgColors|Bold|Italic|Underline|Strikethrough|Redo|Undo|ZoomIn|ZoomOut|FontColors|FontSize|LineHeight|Dash|SmallDash|SortAscending|SortDescending|Drag|OrderedList|UnorderedList|RadiusSetting|ColumnWidth|ColumnHeight"] = "editor",
+            ["AreaChart|PieChart|BarChart|DotChart|LineChart|RadarChart|HeatMap|Fall|Rise|Stock|BoxPlot|Fund|Sliders"] = "data",
+            ["Android|Apple|Windows|Ie|IeCircle|IeSquare|Chrome|Github|Aliwangwang|Dingding|WeiboSquare|WeiboCircle|TaobaoCircle|Html5|Weibo|Twitter|TwitterCircle|TwitterSquare|Wechat|WhatsApp|Youtube|AlipayCircle|Taobao|TaobaoSquare|Dingtalk|DingtalkCircle|DingtalkSquare|Skype|Qq|QqCircle|QqSquare|MediumWorkmark|Gitlab|Medium|MediumCircle|MediumSquare|Linkedin|GooglePlus|GooglePlusCircle|GooglePlusSquare|Dropbox|DropboxCircle|DropboxSquare|Facebook|Codepen|CodepenSquare|CodeSandbox|CodeSandboxSquare|CodeSandboxCircle|Amazon|AmazonCircle|AmazonSquare|Google|GoogleCircle|GoogleSquare|CodepenCircle|Alipay|AlipaySquare|AntDesign|AntCloud|Aliyun|Zhihu|ZhihuCircle|ZhihuSquare|Slack|SlackCircle|SlackSquare|Behance|BehanceCircle|BehanceSquare|Dribbble|DribbbleCircle|DribbbleSquare|Instagram|Yuque|Alibaba|Yahoo|Reddit|RedditCircle|RedditSquare|Sketch|SketchCircle|SketchSquare|WechatWork|OpenAI|Anthropic|Claude|Gemini|Mistral|DeepSeek|Qwen|Perplexity|HuggingFace|Ollama|Replicate|ElevenLabs|Telegram|Mastodon|Threads|Snapchat|Discord|X|Bilibili|Pinterest|TikTok|Spotify|Twitch|Linux|Java|JavaScript|Python|Ruby|DotNet|Kubernetes|Docker|Baidu|HarmonyOS"] = "logo"
         };
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -61,7 +61,7 @@ namespace AntDesign.Icons.Generator
             foreach (var fileInfo in svgFileInfos)
             {
                 var iconName = string.Join("", fileInfo.Name.Split('-').Select(static str => str[0].ToString().ToUpper() + str.Substring(1)));
-                var iconTheme = fileInfo.DirName[0].ToString().ToUpper() + fileInfo.DirName.Substring(1);
+                var iconTheme = ToThemeClassName(fileInfo.DirName);
                 var className = iconName + iconTheme;
    
                 var iconCode = IconGeneratorHelper.GetIconClassTemplate(fileInfo.Name, className, fileInfo.Content, oldIconNames);
@@ -71,10 +71,24 @@ namespace AntDesign.Icons.Generator
 
         private static void GenerateCatalog(IEnumerable<SvgFileInfo> svgFileInfos, SourceProductionContext context)
         {
+            var applicationIconOrder = svgFileInfos
+                .GroupBy(file => file.Name, StringComparer.Ordinal)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(file => ToClassName(file.Name) + ToThemeClassName(file.DirName))
+                        .OrderBy(className => className, StringComparer.Ordinal)
+                        .First(),
+                    StringComparer.Ordinal);
             var entries = svgFileInfos
-                .Select(file => (file.Name, Theme: file.DirName, ClassName: ToClassName(file.Name) + ToClassName(file.DirName)))
-                .OrderBy(file => file.Name, StringComparer.Ordinal)
-                .ThenBy(file => file.Theme, StringComparer.Ordinal)
+                .Select(file => (file.Name, Theme: file.DirName, ClassName: ToClassName(file.Name) + ToThemeClassName(file.DirName)))
+                .OrderBy(file => GetCategoryOrder(file.Name))
+                .ThenBy(file => GetNameOrder(file.Name))
+                // The React application-icon inventory follows the first generated
+                // component export name for each base icon (e.g. AppstoreAdd precedes
+                // Appstore), then presents that icon's variants in theme order.
+                .ThenBy(file => GetNameOrder(file.Name) == int.MaxValue ? applicationIconOrder[file.Name] : string.Empty, StringComparer.Ordinal)
+                .ThenBy(file => GetThemeOrder(file.Theme))
+                .ThenBy(file => file.Name, StringComparer.Ordinal)
                 .ToArray();
 
             var source = new StringBuilder("""
@@ -128,10 +142,38 @@ namespace AntDesign.Icons.Generator
         private static string ToClassName(string value)
             => string.Concat(value.Split('-').Select(part => char.ToUpperInvariant(part[0]) + part.Substring(1)));
 
+        private static string ToThemeClassName(string value)
+            => string.Equals(value, "twotone", StringComparison.Ordinal) ? "TwoTone" : ToClassName(value);
+
+        private static readonly string[] CategoryOrder = ["direction", "suggestion", "editor", "data", "logo", "other"];
+        private static readonly string[] ThemeOrder = ["outlined", "filled", "twotone"];
+
+        private static int GetCategoryOrder(string name)
+            => Array.IndexOf(CategoryOrder, GetCategory(name));
+
+        private static int GetThemeOrder(string theme)
+            => Array.IndexOf(ThemeOrder, theme);
+
+        private static int GetNameOrder(string name)
+        {
+            var componentName = ToClassName(name);
+            foreach (var category in IconCategories.Keys)
+            {
+                var names = category.Split('|');
+                var index = Array.IndexOf(names, componentName);
+                if (index >= 0) return index;
+            }
+
+            return int.MaxValue;
+        }
+
         // Keep the documentation taxonomy alongside the generated inventory so every
         // newly added SVG receives a category without a second hand-maintained list.
         private static string GetCategory(string name)
-            => IconCategories.FirstOrDefault(category => category.Key.Split('|').Contains(name)).Value ?? "other";
+        {
+            var componentName = ToClassName(name);
+            return IconCategories.FirstOrDefault(category => category.Key.Split('|').Contains(componentName)).Value ?? "other";
+        }
 
 
     }
