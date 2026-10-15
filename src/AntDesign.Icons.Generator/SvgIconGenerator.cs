@@ -49,8 +49,8 @@ namespace AntDesign.Icons.Generator
             context.RegisterSourceOutput(mergeInfo, (ctx, mergeInfo) =>
             {
                 var packageName = mergeInfo.Left.Name;
-                var fileInfos = mergeInfo.Right.Left.Left;
-                var viewBoxTransformSource = mergeInfo.Right.Left.Right.FirstOrDefault();
+                var fileInfos = mergeInfo.Right.Left;
+                var viewBoxTransformSource = mergeInfo.Right.Right.FirstOrDefault();
                 if (string.IsNullOrWhiteSpace(viewBoxTransformSource)
                     || !Regex.IsMatch(viewBoxTransformSource, @"\bOLD_ICON_NAMES\s*=\s*\[[\s\S]*?\]", RegexOptions.CultureInvariant))
                 {
