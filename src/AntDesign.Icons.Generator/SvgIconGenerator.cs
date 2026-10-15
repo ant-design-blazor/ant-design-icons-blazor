@@ -11,9 +11,18 @@ namespace AntDesign.Icons.Generator
     [Generator]
     public class SvgIconGenerator : IIncrementalGenerator
     {
+        private static readonly DiagnosticDescriptor MissingViewBoxTransform = new(
+            "ADICONS001",
+            "Missing React viewBox transform source",
+            "Could not read OLD_ICON_NAMES from adjustViewBox.ts; refusing to generate potentially mismatched icon viewBox values",
+            "AntDesign.Icons.Generator",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            var textProvider = context.AdditionalTextsProvider.Where(static file => file.Path.EndsWith(".svg"));
+            var allAdditionalFiles = context.AdditionalTextsProvider;
+            var textProvider = allAdditionalFiles.Where(static file => file.Path.EndsWith(".svg", StringComparison.OrdinalIgnoreCase));
 
             var valueProvider = textProvider.Select((text, token) =>
             {
@@ -29,7 +38,7 @@ namespace AntDesign.Icons.Generator
             }).Collect();
 
             var oldIconNamesProvider = context.AdditionalTextsProvider
-                .Where(static file => file.Path.EndsWith("adjustViewBox.ts"))
+                .Where(static file => file.Path.EndsWith("adjustViewBox.ts", StringComparison.OrdinalIgnoreCase))
                 .Select((text, token) => text.GetText(token)!.ToString())
                 .Collect();
 
@@ -46,7 +55,21 @@ namespace AntDesign.Icons.Generator
             {
                 var packageName = mergeInfo.Left.Name;
                 var fileInfos = mergeInfo.Right.Left.Left;
-                var oldIconNames = IconGeneratorHelper.ParseOldIconNames(mergeInfo.Right.Left.Right.FirstOrDefault() ?? string.Empty);
+                var viewBoxTransformSource = mergeInfo.Right.Left.Right.FirstOrDefault();
+                if (string.IsNullOrWhiteSpace(viewBoxTransformSource)
+                    || !Regex.IsMatch(viewBoxTransformSource, @"\bOLD_ICON_NAMES\s*=\s*\[[\s\S]*?\]", RegexOptions.CultureInvariant))
+                {
+                    ctx.ReportDiagnostic(Diagnostic.Create(MissingViewBoxTransform, Location.None));
+                    return;
+                }
+
+                var oldIconNames = IconGeneratorHelper.ParseOldIconNames(viewBoxTransformSource);
+                if (oldIconNames.Count == 0)
+                {
+                    ctx.ReportDiagnostic(Diagnostic.Create(MissingViewBoxTransform, Location.None));
+                    return;
+                }
+
                 var categories = ParseCategories(mergeInfo.Right.Right.FirstOrDefault() ?? string.Empty);
                 GerateIconKind(packageName, fileInfos, oldIconNames, ctx);
                 GenerateCatalog(fileInfos, categories, ctx);
