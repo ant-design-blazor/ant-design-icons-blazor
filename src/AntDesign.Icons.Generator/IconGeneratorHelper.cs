@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -25,17 +26,23 @@ namespace AntDesign.Icons.Generator
 
             /*towtoneFields*/
 
-                public static RenderFragment RenderIcon(string className = "", string style = "", bool spin = false, double rotate = 0/*twotoneParam*/)
+                public static RenderFragment RenderIcon(string className = "", string style = "", bool spin = false, double rotate = 0, string role = "img", string ariaLabel = null/*twotoneParam*/)
                 {
                     /*towtoneHandler*/
 
                     return (builder) =>
                     {
                         builder.OpenElement(0, "span");
-                        builder.AddAttribute(1, "class", $"anticon anticon-{IconName} {(spin ? "anticon-spin" : "")} {className}");
-                        builder.AddAttribute(2, "style", $"{(rotate != 0 ? $"transform: rotate({rotate}deg);" : "")} {style}");
+                        builder.AddAttribute(1, "role", role);
+                        builder.AddAttribute(2, "aria-label", ariaLabel ?? IconName);
+                        builder.AddAttribute(3, "class", $"anticon anticon-{IconName}{(spin ? " anticon-spin" : "")}{(string.IsNullOrWhiteSpace(className) ? "" : $" {className}")}");
+                        var iconStyle = $"{(rotate != 0 ? $"transform: rotate({rotate}deg);" : "")}{(rotate != 0 && !string.IsNullOrWhiteSpace(style) ? " " : "")}{style}";
+                        if (!string.IsNullOrWhiteSpace(iconStyle))
+                        {
+                            builder.AddAttribute(4, "style", iconStyle);
+                        }
 
-                        builder.OpenElement(3, "svg");
+                        builder.OpenElement(5, "svg");
                        
             {{attributes}}
 
@@ -46,7 +53,7 @@ namespace AntDesign.Icons.Generator
                 }
 
                 protected override void BuildRenderTree(RenderTreeBuilder builder)
-                    => builder.AddContent(0, RenderIcon(Class, Style, Spin, Rotate/*twotoneArgs*/));
+                    => builder.AddContent(0, RenderIcon(Class, Style, Spin, Rotate, Role, AriaLabel/*twotoneArgs*/));
 
             /*twotoneMethodTemplate*/
             }
@@ -57,7 +64,7 @@ namespace AntDesign.Icons.Generator
             return $$$"""
                 private static string GetTwoToneIconSvg(string path, string[] twoToneColor)
                 {
-                    if (twoToneColor is { Length: 1 } || string.IsNullOrWhiteSpace(twoToneColor[1]))
+                    if (twoToneColor is { Length: 1 })
                     {
                         return path.Replace($"fill=\"primaryColor\"", $"fill=\"{twoToneColor[0]}\"");
                     }
@@ -75,10 +82,10 @@ namespace AntDesign.Icons.Generator
             """;
         }
 
-        public static string GetIconClassTemplate(string iconName, string className, string content, HashSet<string> legacyViewBoxNames)
+        public static string GetIconClassTemplate(string iconName, string className, string content, ISet<string>? oldIconNames = null)
         {
             var template = IconTemplate;
-            var towtone = className.EndsWith("Twotone");
+            var towtone = className.EndsWith("TwoTone", StringComparison.Ordinal);
             if (towtone)
             {
                 var (primaryColor, secondaryColor) = GetTwotoneFields(content);
@@ -126,10 +133,11 @@ namespace AntDesign.Icons.Generator
             xml.LoadXml(content);
 
             var attributes = xml.DocumentElement.Attributes.Cast<XmlAttribute>().ToDictionary(static attr => attr.Name, static attr => attr.Value);
-            attributes["viewBox"] = legacyViewBoxNames.Contains(iconName)
-                ? "0 0 1024 1024"
-                : "64 64 896 896";
-
+            // React icons keep the source SVG's viewBox and other geometry attributes,
+            // but do not forward its root class (commonly `icon`) to the rendered SVG.
+            attributes.Remove("class");
+            attributes.Remove("xmlns");
+            attributes["viewBox"] = oldIconNames?.Contains(iconName) == true ? "0 0 1024 1024" : "64 64 896 896";
             attributes["width"] = "1em";
             attributes["height"] = "1em";
             attributes["data-icon"] = iconName;
@@ -140,7 +148,19 @@ namespace AntDesign.Icons.Generator
                 attributes["fill"] = "currentColor";
             }
 
-            var svgPaths = xml.DocumentElement.InnerXml;
+            // Keep the original child markup instead of serializing XmlDocument.InnerXml.
+            // The XML serializer repeats the root SVG namespace on every child path, while
+            // React's rendered SVG has no xmlns attributes on those descendants.
+            var svgRootStart = Regex.Match(content, @"<svg\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var svgRootEnd = content.LastIndexOf("</svg>", StringComparison.OrdinalIgnoreCase);
+            if (!svgRootStart.Success || svgRootEnd < svgRootStart.Index + svgRootStart.Length)
+            {
+                throw new InvalidDataException("The icon source must contain a complete SVG root element.");
+            }
+
+            var svgPaths = content.Substring(
+                svgRootStart.Index + svgRootStart.Length,
+                svgRootEnd - svgRootStart.Index - svgRootStart.Length);
 
             template = template.Replace("{{iconName}}", iconName)
                 .Replace("{{className}}", className)
@@ -150,10 +170,27 @@ namespace AntDesign.Icons.Generator
             return template;
         }
 
+        public static HashSet<string> ParseOldIconNames(string source)
+        {
+            var match = Regex.Match(source, @"OLD_ICON_NAMES\s*=\s*\[(?<names>[\s\S]*?)\]", RegexOptions.CultureInvariant);
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            if (!match.Success)
+            {
+                return names;
+            }
+
+            foreach (Match name in Regex.Matches(match.Groups["names"].Value, "['\"](?<name>[^'\"]+)['\"]", RegexOptions.CultureInvariant))
+            {
+                names.Add(name.Groups["name"].Value);
+            }
+
+            return names;
+        }
+
         private static string GetAttributesString(Dictionary<string, string> attributes)
         {
             var sb = new StringBuilder();
-            var index = 4;
+            var index = 6;
             foreach (var attr in attributes)
             {
                 sb.AppendLine($"{Indent(3)}builder.AddAttribute({index++}, \"{attr.Key}\", \"{attr.Value}\");");

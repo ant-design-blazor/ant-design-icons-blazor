@@ -16,6 +16,18 @@ namespace AntDesign.Icons
         [Parameter]
         public string Style { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Sets the accessible role of the rendered icon.
+        /// </summary>
+        [Parameter]
+        public string Role { get; set; } = "img";
+
+        /// <summary>
+        /// Sets the accessible name of the rendered icon.
+        /// </summary>
+        [Parameter]
+        public string? AriaLabel { get; set; }
+
         [Parameter]
         public bool Spin { get; set; }
 

@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AntDesign.Icons", "src\AntD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntDesign.Icons.Sample", "src\AntDesign.Icons.Sample\AntDesign.Icons.Sample.csproj", "{809F17E7-92DB-40DD-A742-3981E5DE86F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntDesign.Icons.Generator.Tests", "tests\AntDesign.Icons.Generator.Tests\AntDesign.Icons.Generator.Tests.csproj", "{E0E3AFB7-3EF0-44A0-8C16-B3E93CAFB978}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{809F17E7-92DB-40DD-A742-3981E5DE86F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{809F17E7-92DB-40DD-A742-3981E5DE86F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{809F17E7-92DB-40DD-A742-3981E5DE86F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0E3AFB7-3EF0-44A0-8C16-B3E93CAFB978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0E3AFB7-3EF0-44A0-8C16-B3E93CAFB978}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0E3AFB7-3EF0-44A0-8C16-B3E93CAFB978}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0E3AFB7-3EF0-44A0-8C16-B3E93CAFB978}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
