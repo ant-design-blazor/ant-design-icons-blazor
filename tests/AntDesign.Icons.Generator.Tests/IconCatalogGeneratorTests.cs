@@ -27,7 +27,8 @@ public class IconCatalogGeneratorTests
             new InMemoryAdditionalText("icons/outlined/appstore.svg", svg),
             new InMemoryAdditionalText("icons/outlined/appstore-add.svg", svg),
             new InMemoryAdditionalText("icons/twotone/down-circle.svg", "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1024 1024\"><path fill=\"#E6E6E6\" d=\"M0 0h1v1H0z\" /><path fill=\"#1890ff\" d=\"M0 0h1v1H0z\" /></svg>"),
-            new InMemoryAdditionalText("icons/transforms/adjustViewBox.ts", "const OLD_ICON_NAMES = ['step-backward'];")
+            new InMemoryAdditionalText("icons/transforms/adjustViewBox.ts", "const OLD_ICON_NAMES = ['step-backward'];"),
+            new InMemoryAdditionalText("icon-categories.tsv", "# Ant Design categories\ndirection\tStepBackward\ndirection\tStepForward\ndirection\tFastBackward\ndirection\tDownCircle\neditor\tColumnHeight\nlogo\tAntDesign")
         };
         var compilation = CSharpCompilation.Create("AntDesign.Icons");
         GeneratorDriver driver = CSharpGeneratorDriver.Create(
@@ -43,7 +44,7 @@ public class IconCatalogGeneratorTests
         Assert.Contains("new(\"ant-design\", \"filled\", \"logo\", typeof(AntDesignFilled))", catalog.SourceText.ToString());
         Assert.Contains("new(\"sample\", \"filled\", \"other\", typeof(SampleFilled))", catalog.SourceText.ToString());
         Assert.Contains("new(\"down-circle\", \"twotone\", \"direction\", typeof(DownCircleTwoTone))", catalog.SourceText.ToString());
-        Assert.Contains("\"direction\", \"suggestion\", \"editor\", \"data\", \"logo\", \"other\"", catalog.SourceText.ToString());
+        Assert.Contains("\"direction\", \"editor\", \"logo\", \"other\"", catalog.SourceText.ToString());
         var catalogText = catalog.SourceText.ToString();
         Assert.True(catalogText.IndexOf("StepBackwardOutlined", StringComparison.Ordinal) < catalogText.IndexOf("StepForwardOutlined", StringComparison.Ordinal));
         Assert.True(catalogText.IndexOf("StepForwardOutlined", StringComparison.Ordinal) < catalogText.IndexOf("FastBackwardOutlined", StringComparison.Ordinal));
